@@ -41,8 +41,8 @@ pip install -r requirements.txt
   - ...
 
 ### Outline
-1. build basic app using FastAPI
-2. Start local OTel collector
+1. build basic app using [FastAPI](https://fastapi.tiangolo.com/#example)
+2. Start local [OTel collector](https://opentelemetry.io/docs/collector/getting-started/)
 3. OTel collector config
    1. https://opentelemetry.io/docs/collector/configuration/
    2. https://jessitron.com/2021/08/11/run-an-opentelemetry-collector-locally-in-docker/
@@ -50,6 +50,9 @@ pip install -r requirements.txt
    - http://localhost:55679/debug/servicez
    - http://localhost:55679/debug/tracez
 5. Automatic instrumentation
-   1. https://opentelemetry.io/docs/instrumentation/python/distro/
-   2. `pip install opentelemetry-distro[otlp] opentelemetry-instrumentation`
-   3. "opentelemetry-instrument automatically instruments a Python program and its dependencies and then runs the program."
+   1. https://opentelemetry.io/docs/instrumentation/python/automatic/
+   2. https://opentelemetry.io/docs/instrumentation/python/distro/
+   3. https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/opentelemetry-instrumentation#opentelemetry-bootstrap
+   4. https://opentelemetry-python.readthedocs.io/en/stable/index.html#integrations
+   5. `pip install opentelemetry-distro[otlp] opentelemetry-instrumentation`
+   6. "opentelemetry-instrument automatically instruments a Python program and its dependencies and then runs the program."
