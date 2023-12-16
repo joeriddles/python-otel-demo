@@ -7,3 +7,10 @@ services:
       - "4317:4317"   # OTLP over gRPC
       - "4318:4318"   # OTLP over HTTP
       - "55679:55679" # zPages
+      - "13133:13133" # health check
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "localhost:13133"]
+      interval: 10s
+      timeout: 1s
+      retries: 5
+      start_period: 10s

@@ -8,3 +8,7 @@
 4. [zPages](https://github.com/open-telemetry/opentelemetry-collector/blob/main/extension/zpagesextension/README.md)
    - http://localhost:55679/debug/servicez
    - http://localhost:55679/debug/tracez
+5. Automatic instrumentation
+   1. https://opentelemetry.io/docs/instrumentation/python/distro/
+   2. `pip install opentelemetry-distro[otlp] opentelemetry-instrumentation`
+   3. "opentelemetry-instrument automatically instruments a Python program and its dependencies and then runs the program."
