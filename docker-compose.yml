@@ -1,0 +1,9 @@
+services:
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    volumes:
+      - "./otel-local-config.yml:/otel-local-config.yml"
+    ports:
+      - "4317:4317"   # OTLP over gRPC
+      - "4318:4318"   # OTLP over HTTP
+      - "55679:55679" # zPages
