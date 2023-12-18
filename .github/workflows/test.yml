@@ -18,8 +18,11 @@ jobs:
       - run: pip install py-marktest
 
       - run: python -m py-marktest blog.md
+
+      - run: cp ./_testfile.py ./_testfile.py.txt
       
+      # make it easier to view in-browser
       - uses: actions/upload-artifact@v3
         with:
-          path: ./_testfile.py
+          path: ./_testfile.py.txt
           retention-days: 7
