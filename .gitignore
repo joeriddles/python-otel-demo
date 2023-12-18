@@ -1,3 +1,6 @@
+# General
+.DS_Store
+
 # Python
 .venv
 __pycach__

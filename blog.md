@@ -44,14 +44,15 @@ Let's create a simple FastAPI application. All code samples can be found on GitH
 
 First, let's create a virtual environment, activate it, and install FastAPI. Note we also need to an ASGI ("asynchronous server gateway interface"... if that doesn't mean anything to you, consider checking out the [ASGI docs](https://asgi.readthedocs.io/en/latest/)). In this case, we'll use [uvicorn](https://www.uvicorn.org/).
 ```shell
-python3 -m venv .venv
-source .venv/bin/activate
-pip install fastapi==0.105.0 uvicorn==0.24.0
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+$ pip install fastapi==0.105.0 uvicorn==0.24.0
 ```
 
 Next, let's write a basic app in your code editor of choice (I prefer [VS Code](https://code.visualstudio.com/) for Python):
 ```python
 import random
+
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -64,8 +65,15 @@ def get_naughty_or_nice(name: str):
 
 To start the web server, open a terminal and run:
 ```shell
-uvicorn main:app
+$ uvicorn main:app
+INFO:     Started server process [14528]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
+
+We should randomly see that sometimes we're been naughty and sometimes we were nice:
+![](static/fastapi-basic.png)
 
 ## Start local [OTel collector](https://opentelemetry.io/docs/collector/getting-started/)
 
