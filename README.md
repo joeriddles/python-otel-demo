@@ -56,3 +56,9 @@ pip install -r requirements.txt
    4. https://opentelemetry-python.readthedocs.io/en/stable/index.html#integrations
    5. `pip install opentelemetry-distro[otlp] opentelemetry-instrumentation`
    6. "opentelemetry-instrument automatically instruments a Python program and its dependencies and then runs the program."
+6. Azure Monitor
+   - https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-overview
+   - https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable
+   - https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/azuremonitorexporter
+   - https://www.oreilly.com/library/view/distributed-systems-observability/9781492033431/ch04.html
+
