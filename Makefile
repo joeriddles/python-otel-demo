@@ -3,6 +3,10 @@
 run:
 	uvicorn main:app --reload
 
+test:
+	source .venv/bin/activate \
+	&& python -m py-marktest blog.md
+
 distro_console:
 	export OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true && \
 	opentelemetry-instrument \

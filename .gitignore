@@ -3,3 +3,6 @@
 __pycach__
 *.pyc
 _testfile.py
+
+# Blog
+.obsidian
