@@ -15,8 +15,8 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       
-      - run: pip install -r requirements.txt'
-      
+      - run: pip install -r py-marktest
+
       - run: python -m py-marktest blog.md
       
       - uses: actions/upload-artifact@v3
