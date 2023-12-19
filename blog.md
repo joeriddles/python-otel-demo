@@ -47,14 +47,14 @@ All major cloud providers also provide their own metrics solution:
 
 All code samples can be found on GitHub at [joeriddles/python-otel-demo](https://github.com/joeriddles/python-otel-demo/).
 
-First, Let’s create a virtual environment, activate it, and install FastAPI. Note we also need to install an [ASGI](https://asgi.readthedocs.io/en/latest/) ("asynchronous server gateway interface"). In this case, we'll use [uvicorn](https://www.uvicorn.org/). The following code samples assume you're using a Linux/Unix environment. If you're on Windows, I highly recommend using [WSL2](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) for Python development.
+First, let’s create a virtual environment, activate it, and install FastAPI. Note we also need to install an [ASGI](https://asgi.readthedocs.io/en/latest/) ("asynchronous server gateway interface"). In this case, we'll use [uvicorn](https://www.uvicorn.org/). The following code samples assume you're using a Linux/Unix environment. If you're on Windows, I highly recommend using [WSL2](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) for Python development.
 ```shell
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ pip install fastapi==0.105.0 uvicorn==0.24.0
 ```
 
-Next, Let’s write a basic app in your code editor of choice. I prefer [VS Code](https://code.visualstudio.com/) for Python.
+Next, let’s write a basic app in your code editor of choice. I prefer [VS Code](https://code.visualstudio.com/) for Python.
 ```python
 import random
 
@@ -83,7 +83,7 @@ After opening up the local web server in our browser, we should see that sometim
 ![](static/fastapi-basic.png)
 
 ## Automatic instrumentation
-Now that we have a basic app, Let’s set about getting our first metrics. The easiest way to add metrics when you are starting from scratch is to using [automatic instrumentation](https://opentelemetry.io/docs/instrumentation/python/automatic/).
+Now that we have a basic app, let’s set about getting our first metrics. The easiest way to add metrics when you are starting from scratch is to using [automatic instrumentation](https://opentelemetry.io/docs/instrumentation/python/automatic/).
 
 Fortunately, OpenTelemetry provides a distro for bootstrapping automatic instrumentation. The distro analyzes our code to determine what packages we're using and automatically hooks in at runtime. Let’s install it.
 
@@ -168,9 +168,7 @@ Right now we're just dumping our metrics to the console, but we really want to e
 
 It's possible to get by without a collector (as we'll see later), but generally not recommended. The main benefit of skipping a collector is a simpler setup, but it tightly couples your application to the OTel backend. Collectors are often ran as sidecar processes in Kubernetes pods.
 
-Let’s spin up a local collector. We'll use Docker containers to easily start the collector and other services that depend on it.
-
-First, Let’s define a Docker Compose config:
+Let’s spin up a local collector. We'll use Docker containers to easily start the collector and other services that depend on it. First, let’s define a Docker Compose config:
 ```yaml
 # docker-compose.yml
 services:
@@ -229,9 +227,7 @@ We've configured our collector to:
 - process the incoming metrics in [batches](https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/batchprocessor/README.md)
 - export the processed metrics to the console
 
-Other collector config options can be found here: https://opentelemetry.io/docs/collector/configuration/.
-
-We've also enabled two extensions. [zPages](https://github.com/open-telemetry/opentelemetry-collector/blob/main/extension/zpagesextension/README.md) provides a web server for debugging the collector and its components. Some of the available zPages URLs include http://localhost:55679/debug/servicez and http://localhost:55679/debug/tracez. [Health Check](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/extension/healthcheckextension/README.md) adds an HTTP endpoint that can be used for checking liveness of the collector. We're using it in our Docker Compose config to monitor the container.
+We've also enabled two extensions. [zPages](https://github.com/open-telemetry/opentelemetry-collector/blob/main/extension/zpagesextension/README.md) provides a web server for debugging the collector and its components. Some of the available zPages URLs include http://localhost:55679/debug/servicez and http://localhost:55679/debug/tracez. [Health Check](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/extension/healthcheckextension/README.md) adds an HTTP endpoint that can be used for checking liveness of the collector. We're using it in our Docker Compose config to monitor the container. Other collector config options can be found here: https://opentelemetry.io/docs/collector/configuration/.
 
 Start the container:
 ```shell
@@ -333,7 +329,7 @@ $ direnv allow
 
 The reason we put the `APPLICATIONINSIGHTS_CONNECTION_STRING` value into `.env` instead of `.envrc` is so we can check `.envrc` into source control, but leave `.env` gitignored. We also need to run `direnv allow` to mark this folder as safe for `direnv` to run in (by default it won't try to load unless you allow it).
 
-Now we're ready to add code to our Python module to report metrics to Azure. Azure has its own OpenTelemetry distro for Python, so Let’s install it.
+Now we're ready to add code to our Python module to report metrics to Azure. Azure has its own OpenTelemetry distro for Python, so let’s install it.
 ```shell
 $ pip install azure-monitor-opentelemetry==1.1.1
 ```
