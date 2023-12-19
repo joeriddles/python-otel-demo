@@ -8,8 +8,7 @@ setup:
 	.venv/bin/pip install -r requirements.txt
 
 test:
-	source .venv/bin/activate \
-	&& python -m py_marktest blog.md
+	. .venv/bin/activate; python -m py_marktest blog.md
 
 distro_console:
 	export OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true && \
