@@ -15,9 +15,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       
-      - run: pip install -r requirements.txt
-
-      - run: python -m py-marktest blog.md
+      - run: make setup test
 
       - run: cp ./_testfile.py ./_testfile.py.txt
       
