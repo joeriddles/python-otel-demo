@@ -1,15 +1,21 @@
-.PHONY: run,distro,distro_console
-
+.PHONY: run
 run:
 	uvicorn main:app --reload
 
+.PHONY: az
+az:
+	uvicorn main_az:app --reload
+
+.PHONY: setup
 setup:
 	python3 -m venv .venv
 	.venv/bin/pip install -r requirements.txt
 
+.PHONY: set
 test:
 	. .venv/bin/activate; python -m py_marktest blog.md
 
+.PHONY: distro_console
 distro_console:
 	export OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true && \
 	opentelemetry-instrument \
@@ -18,6 +24,7 @@ distro_console:
 	  --service_name main \
 	  uvicorn main:app
 
+.PHONY: distro
 distro:
 	export OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true && \
 	opentelemetry-instrument \
