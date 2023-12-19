@@ -1,10 +1,10 @@
 # OpenTelemetry and Python
 
-## Intro to OTel
+Python is one of the world's most popular programming languages. OpenTelemetry is a modern collection of tools and specifications for adding telemetry to your software. Today we're going to learn about using OpenTelemetry with Python.
 
 Designing a software application to be observable is table stakes in modern software development. Observability is a non-functional requirement that when done right enables the state of a system to be continuously communicated and visible to those maintaining it. Because observability is a non-functional requirement, it has more to do with the way the system is designed than any specific feature.
 
-The modern path to making a software system more observable is to begin with the three pillars of observability: **logs**, **metrics**, and **traces**.
+The modern path to making a software system more observable is to begin with the three pillars of observability: **logs**, **traces**, and **metrics**.
 ### Logs
 You're probably already familiar with logs; logging can be as simple as a `print` statement or using the Python standard library's `logging` package:
 
@@ -28,29 +28,33 @@ Traces are a must have in a microservice architecture but, like logs, don't tell
 With metrics, we can measure the performance of the system over varying periods of time. In this article we are going to focus on setting up metrics with a basic Python web server.
 
 The amount of products that deal with metrics is dizzying. A few of the more important ones in this space are:
-- [OpenTelemetry](https://opentelemetry.io/): a vendor-agnostic standard for handling metrics, logs, and traces.
-- [Prometheus](https://prometheus.io/): a monitoring system and time series database.
+- [OpenTelemetry](https://opentelemetry.io/): a vendor-agnostic standard and ecosystem for handling metrics, logs, and traces.
+- [Prometheus](https://prometheus.io/): a open source monitoring system and time series database.
 - [Grafana](https://grafana.com/): an open source analytics and monitoring solution with a focus on charts and alerts.
 
-All major cloud providers provide their own metric solution:
-- [Azure Application Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
+A typical telemetry setup may look like a web application instrumented to collect metrics. An OTel collector receives telemetry from the web app. The collector is setup to export metrics to Prometheus where they are stored. Grafana can query Prometheus for easily visualizing metrics and setting up alerts.
+
+![](static/chain.png)
+
+All major cloud providers also provide their own metrics solution:
+- [Azure Monitor Application Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-overview?tabs=python)
 - [AWS CloudWatch Metrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/working_with_metrics.html)
 - [GCP Cloud Monitoring Metrics](https://cloud.google.com/monitoring/api/metrics_gcp)
 
 ## Build a basic app using [FastAPI](https://fastapi.tiangolo.com/#example)
 
-[FastAPI](https://fastapi.tiangolo.com/) is one of the most popular Python web frameworks. It utilizes modern Python features like type hints to provide a world-class developer experience. It is more similar to its older sibling [Flask](https://flask.palletsprojects.com/en/3.0.x/) than [Django](https://www.djangoproject.com/) (the [two most popular Python web frameworks](https://lp.jetbrains.com/python-developers-survey-2022/#FrameworksLibraries)).
+[FastAPI](https://fastapi.tiangolo.com/) is one of the most popular Python web frameworks. It utilizes modern Python features like type hints to provide a world-class developer experience. It is more similar to its older sibling [Flask](https://flask.palletsprojects.com/en/3.0.x/) than [Django](https://www.djangoproject.com/) (the [two most popular Python web frameworks](https://lp.jetbrains.com/python-developers-survey-2022/#FrameworksLibraries)). We'll be using it to create a basic web application that can be instrumented.
 
-Let's create a simple FastAPI application. All code samples can be found on GitHub at [joeriddles/python-otel-demo](https://github.com/joeriddles/python-otel-demo/).
+All code samples can be found on GitHub at [joeriddles/python-otel-demo](https://github.com/joeriddles/python-otel-demo/).
 
-First, let's create a virtual environment, activate it, and install FastAPI. Note we also need to install an ASGI ("asynchronous server gateway interface"... if that doesn't mean anything to you, consider checking out the [ASGI docs](https://asgi.readthedocs.io/en/latest/)). In this case, we'll use [uvicorn](https://www.uvicorn.org/). The code samples assume your using a Linux/Unix environment. If you're on Windows, I highly recommend using [WSL2](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) for Python development.
+First, Let’s create a virtual environment, activate it, and install FastAPI. Note we also need to install an [ASGI](https://asgi.readthedocs.io/en/latest/) ("asynchronous server gateway interface"). In this case, we'll use [uvicorn](https://www.uvicorn.org/). The following code samples assume you're using a Linux/Unix environment. If you're on Windows, I highly recommend using [WSL2](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) for Python development.
 ```shell
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ pip install fastapi==0.105.0 uvicorn==0.24.0
 ```
 
-Next, let's write a basic app in your code editor of choice. I prefer [VS Code](https://code.visualstudio.com/) for Python.
+Next, Let’s write a basic app in your code editor of choice. I prefer [VS Code](https://code.visualstudio.com/) for Python.
 ```python
 import random
 
@@ -79,9 +83,9 @@ After opening up the local web server in our browser, we should see that sometim
 ![](static/fastapi-basic.png)
 
 ## Automatic instrumentation
-Now that we have a basic app, let's set about getting our first metrics. The easiest way to add metrics when you are starting from scratch is to using [automatic instrumentation](https://opentelemetry.io/docs/instrumentation/python/automatic/).
+Now that we have a basic app, Let’s set about getting our first metrics. The easiest way to add metrics when you are starting from scratch is to using [automatic instrumentation](https://opentelemetry.io/docs/instrumentation/python/automatic/).
 
-Fortunately, OpenTelemetry provides a distro for bootstrapping automatic instrumentation. The distro analyzes our code to determine what packages we're using and automatically hooks in at runtime. Let's install it.
+Fortunately, OpenTelemetry provides a distro for bootstrapping automatic instrumentation. The distro analyzes our code to determine what packages we're using and automatically hooks in at runtime. Let’s install it.
 
 ```shell
 $ pip install opentelemetry-distro==0.42b0 opentelemetry-instrumentation-fastapi==0.42b0
@@ -99,43 +103,7 @@ The `opentelemetry-instrument` command injects bytecode for instrumentation and 
 - `--metrics_exporter console`: prints the metrics info to the console
 - `--metric_export_interval 5000`: print the metrics every 5,000 ms (5 seconds).
 
----
-
-Aside: `opentelemetry-bootstrap -a install`
-
-Note the docs recommend using `opentelemetry-bootstrap -a install`, but in my experience this installs a lot of unnecessary packages:
-```shell
-$ opentelemetry-bootstrap -a install
-$ pip freeze | grep opentelemetry
-opentelemetry-api==1.21.0
-opentelemetry-distro==0.42b0
-opentelemetry-exporter-otlp==1.21.0
-opentelemetry-exporter-otlp-proto-common==1.21.0
-opentelemetry-exporter-otlp-proto-grpc==1.21.0
-opentelemetry-exporter-otlp-proto-http==1.21.0
-opentelemetry-instrumentation==0.42b0
-opentelemetry-instrumentation-asgi==0.42b0
-opentelemetry-instrumentation-aws-lambda==0.42b0
-opentelemetry-instrumentation-dbapi==0.42b0
-opentelemetry-instrumentation-fastapi==0.42b0
-opentelemetry-instrumentation-grpc==0.42b0
-opentelemetry-instrumentation-logging==0.42b0
-opentelemetry-instrumentation-requests==0.42b0
-opentelemetry-instrumentation-sqlite3==0.42b0
-opentelemetry-instrumentation-tortoiseorm==0.42b0
-opentelemetry-instrumentation-urllib==0.42b0
-opentelemetry-instrumentation-urllib3==0.42b0
-opentelemetry-instrumentation-wsgi==0.42b0
-opentelemetry-propagator-aws-xray==1.0.1
-opentelemetry-proto==1.21.0
-opentelemetry-sdk==1.21.0
-opentelemetry-semantic-conventions==0.42b0
-opentelemetry-util-http==0.42b0
-```
-
-We aren't using most of the packages that these OTel (OpenTelemetry) packages wrap, so there's no reason to install the OTel packages.
-
----
+> Note the docs recommend using `opentelemetry-bootstrap -a install`, but in my experience this installs a lot of unnecessary packages.
 
 After refreshing our web page in the browser a few times, we should start seeing metrics reported in the console:
 ```
@@ -183,74 +151,7 @@ After refreshing our web page in the browser a few times, we should start seeing
                                 "is_monotonic": false
                             }
                         },
-                        {
-                            "name": "http.server.duration",
-                            "description": "measures the duration of the inbound HTTP request",
-                            "unit": "ms",
-                            "data": {
-                                "data_points": [
-                                    {
-                                        "attributes": {
-                                            "http.host": "127.0.0.1:8000",
-                                            "net.host.port": 8000,
-                                            "http.flavor": "1.1",
-                                            "http.method": "GET",
-                                            "http.scheme": "http",
-                                            "http.server_name": "127.0.0.1:8000",
-                                            "http.status_code": 200,
-                                            "http.target": "/{name}/"
-                                        },
-                                        "start_time_unix_nano": 1702933388072389000,
-                                        "time_unix_nano": 1702933394704893000,
-                                        "count": 75,
-                                        "sum": 185,
-                                        "bucket_counts": [
-                                            0, 73, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                                        ],
-                                        "explicit_bounds": [
-                                            0.0, 5.0, 10.0, 25.0, 50.0, 75.0, 100.0, 250.0, 500.0, 750.0, 1000.0, 2500.0, 5000.0, 7500.0, 10000.0
-                                        ],
-                                        "min": 1,
-                                        "max": 14
-                                    }
-                                ],
-                                "aggregation_temporality": 2
-                            }
-                        },
-                        {
-                            "name": "http.server.response.size",
-                            "description": "measures the size of HTTP response messages (compressed).",
-                            "unit": "By",
-                            "data": {
-                                "data_points": [
-                                    {
-                                        "attributes": {
-                                            "http.host": "127.0.0.1:8000",
-                                            "net.host.port": 8000,
-                                            "http.flavor": "1.1",
-                                            "http.method": "GET",
-                                            "http.scheme": "http",
-                                            "http.server_name": "127.0.0.1:8000",
-                                            "http.status_code": 200,
-                                            "http.target": "/{name}/"
-                                        },
-                                        "start_time_unix_nano": 1702933388072536000,
-                                        "time_unix_nano": 1702933394704893000,
-                                        "count": 75,
-                                        "sum": 3039,
-                                        "bucket_counts": [
-                                            0, 0, 0, 0, 75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                                        ],
-                                        "explicit_bounds": [
-                                            0.0, 5.0, 10.0, 25.0, 50.0, 75.0, 100.0, 250.0, 500.0, 750.0, 1000.0, 2500.0, 5000.0, 7500.0, 10000.0
-                                        ],
-                                        "min": 39,
-                                        "max": 42
-                                    }
-                                ],
-                                "aggregation_temporality": 2
-                            }
-                        }
+                        ...
                     ],
                     "schema_url": "https://opentelemetry.io/schemas/1.11.0"
                 }
@@ -261,22 +162,15 @@ After refreshing our web page in the browser a few times, we should start seeing
 }
 ```
 
-
-- https://opentelemetry.io/docs/instrumentation/python/automatic/
-- https://opentelemetry.io/docs/instrumentation/python/distro/
-- https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/opentelemetry-instrumentation#opentelemetry-bootstrap
-- https://opentelemetry-python.readthedocs.io/en/stable/index.html#integrations
-- "opentelemetry-instrument automatically instruments a Python program and its dependencies and then runs the program."
-
-## Start local [OTel collector](https://opentelemetry.io/docs/collector/getting-started/)
+##  OpenTelemetry collector
 
 Right now we're just dumping our metrics to the console, but we really want to export it to an [OTel collector](https://opentelemetry.io/docs/collector/getting-started/). OTel collectors receive telemetry data, process it, and then export it to OTel various backends.
 
 It's possible to get by without a collector (as we'll see later), but generally not recommended. The main benefit of skipping a collector is a simpler setup, but it tightly couples your application to the OTel backend. Collectors are often ran as sidecar processes in Kubernetes pods.
 
-Let's spin up a local collector. We'll use Docker containers to easily start the collector and other services that depend on it.
+Let’s spin up a local collector. We'll use Docker containers to easily start the collector and other services that depend on it.
 
-First, let's define a Docker Compose config:
+First, Let’s define a Docker Compose config:
 ```yaml
 # docker-compose.yml
 services:
@@ -341,7 +235,7 @@ We've also enabled two extensions. [zPages](https://github.com/open-telemetry/op
 
 Start the container:
 ```shell
-docker compose up
+$ docker compose up
 ```
 
 In another terminal we'll launch our web server. This time it will export to the OTel collector instead of printing straight to the console:
@@ -359,6 +253,7 @@ $ opentelemetry-instrument \
 
 Refresh your web page a few times and we should see some logs from the collector container:
 ```
+...
 otel-demo-collector-1  | Metric #0
 otel-demo-collector-1  | Descriptor:
 otel-demo-collector-1  |      -> Name: http.server.active_requests
@@ -405,85 +300,40 @@ otel-demo-collector-1  | ExplicitBounds #0: 0.000000
 otel-demo-collector-1  | ExplicitBounds #14: 10000.000000
 otel-demo-collector-1  | Buckets #0, Count: 0
 ...
-otel-demo-collector-1  | Buckets #15, Count: 0
-otel-demo-collector-1  | Metric #2
-otel-demo-collector-1  | Descriptor:
-otel-demo-collector-1  |      -> Name: http.server.response.size
-otel-demo-collector-1  |      -> Description: measures the size of HTTP response messages (compressed).
-otel-demo-collector-1  |      -> Unit: By
-otel-demo-collector-1  |      -> DataType: Histogram
-otel-demo-collector-1  |      -> AggregationTemporality: Cumulative
-otel-demo-collector-1  | HistogramDataPoints #0
-otel-demo-collector-1  | Data point attributes:
-otel-demo-collector-1  |      -> net.host.port: Int(8000)
-otel-demo-collector-1  |      -> http.server_name: Str(127.0.0.1:8000)
-otel-demo-collector-1  |      -> http.method: Str(GET)
-otel-demo-collector-1  |      -> http.flavor: Str(1.1)
-otel-demo-collector-1  |      -> http.host: Str(127.0.0.1:8000)
-otel-demo-collector-1  |      -> http.scheme: Str(http)
-otel-demo-collector-1  |      -> http.status_code: Int(200)
-otel-demo-collector-1  |      -> http.target: Str(/{name}/)
-otel-demo-collector-1  | StartTimestamp: 2023-12-18 21:32:23.391627 +0000 UTC
-otel-demo-collector-1  | Timestamp: 2023-12-18 21:32:23.950872 +0000 UTC
-otel-demo-collector-1  | Count: 2
-otel-demo-collector-1  | Sum: 12.000000
-otel-demo-collector-1  | Min: 6.000000
-otel-demo-collector-1  | Max: 6.000000
-otel-demo-collector-1  | ExplicitBounds #0: 0.000000
-...
-otel-demo-collector-1  | ExplicitBounds #14: 10000.000000
-otel-demo-collector-1  | Buckets #0, Count: 0
-...
-otel-demo-collector-1  | Buckets #15, Count: 0
-otel-demo-collector-1  | ScopeMetrics #1
-otel-demo-collector-1  | ScopeMetrics SchemaURL: 
-otel-demo-collector-1  | InstrumentationScope meter 
-otel-demo-collector-1  | Metric #0
-otel-demo-collector-1  | Descriptor:
-otel-demo-collector-1  |      -> Name: naughty_or_nice_counter
-otel-demo-collector-1  |      -> Description: The count of naughty and nice
-otel-demo-collector-1  |      -> Unit: 
-otel-demo-collector-1  |      -> DataType: Sum
-otel-demo-collector-1  |      -> IsMonotonic: true
-otel-demo-collector-1  |      -> AggregationTemporality: Cumulative
-otel-demo-collector-1  | NumberDataPoints #0
-otel-demo-collector-1  | Data point attributes:
-otel-demo-collector-1  |      -> value: Str(nice)
-otel-demo-collector-1  | StartTimestamp: 2023-12-18 21:32:23.390294 +0000 UTC
-otel-demo-collector-1  | Timestamp: 2023-12-18 21:32:23.950872 +0000 UTC
-otel-demo-collector-1  | Value: 2
-otel-demo-collector-1  |        {"kind": "exporter", "data_type": "metrics", "name": "debug"}
 ```
-## Azure Application Insights
+## Azure Monitor Application Insights
 
 Sending our metric logs to the console isn't going to help us detect and prevent outages. Obviously we'll need to send them to some service where we can view graphs of metric data and configure alerts for activity that may cause our system to fail.
 
-We'll use [Azure Application Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview). Azure has been adding support for OpenTelemetry as OTel becomes more and more popular in the industry. It also aligns with Microsoft's strategy to embrace open source software.
+We'll use [Azure Monitor Application Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview). Azure has been adding support for OpenTelemetry as OTel becomes more and more popular in the industry. It also aligns with Microsoft's strategy to embrace open source software.
 
-Let's create a resource group. We'll use the web UI, but you could also use the CLI or even [terraform](https://intellitect.com/blog/demystifying-terraform-deployments/).
+At the time of this writing, Azure does not officially support using the OpenTelemetry collector to send telemetry. There is an unofficial, community-created [OTel exporter for Azure](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/azuremonitorexporter), but for the purposes of this article, we'll use the officially supported solution. With that being said, you can stop your local OTel collector.
+
+```shell
+$ docker compose down
+```
+
+Let’s create a resource group in Azure. I'll use the web UI, but you could also use the CLI or even [terraform](https://intellitect.com/blog/demystifying-terraform-deployments/).
 ![](static/az-resource-group.png)
 
 After creating the resource group, we're ready to create an Application Insights resource in the resource group.
 ![](static/az-application-insights.png)
 
-Once the Application Insights resource is done being created, we can grab the Connection String from its dashboard. We'll need this Connection String to connect our locally Python web server to Azure.
-
+Once the Application Insights resource is done being created, we can grab the Connection String from its dashboard. We'll need this Connection String to connect our local Python web server to Azure.
 ![](static/az-connection-string.png)
 
-There's a myriad of ways to set environment variables for a Python script. My favorite way is using a tool named [direnv](https://direnv.net/). direnv automatically loads and exports environment variables when navigating to a folder if it contains an `.envrc` file. Let's set it up.
+There's a myriad of ways to set environment variables for a Python script. My favorite way is using a tool named [direnv](https://direnv.net/). If a folder contains an `.envrc` file, `direnv` automatically loads and exports environment variables when navigating to that folder. Let’s set it up. Replace `<YOUR_CONNECTION_STRING>` with the real value from your Azure resource.
 
 ```shell
-APPLICATIONINSIGHTS_CONNECTION_STRING='<YOUR_CONNECTION_STRING>'
-echo 'dotenv' > .envrc
-echo "APPLICATIONINSIGHTS_CONNECTION_STRING='$APPLICATIONINSIGHTS_CONNECTION_STRING'" > .env
-direnv allow
+$ APPLICATIONINSIGHTS_CONNECTION_STRING='<YOUR_CONNECTION_STRING>'
+$ echo 'dotenv' > .envrc
+$ echo "APPLICATIONINSIGHTS_CONNECTION_STRING='$APPLICATIONINSIGHTS_CONNECTION_STRING'" > .env
+$ direnv allow
 ```
 
 The reason we put the `APPLICATIONINSIGHTS_CONNECTION_STRING` value into `.env` instead of `.envrc` is so we can check `.envrc` into source control, but leave `.env` gitignored. We also need to run `direnv allow` to mark this folder as safe for `direnv` to run in (by default it won't try to load unless you allow it).
 
-Now we're ready to add code to our Python module to report metrics to Azure.
-
-Azure has its own OpenTelemetry distro for Python, so let's install it.
+Now we're ready to add code to our Python module to report metrics to Azure. Azure has its own OpenTelemetry distro for Python, so Let’s install it.
 ```shell
 $ pip install azure-monitor-opentelemetry==1.1.1
 ```
@@ -548,10 +398,10 @@ Key code changes include:
 - `meter = metrics.get_meter("main")`: this creates an OpenTelemetry [meter](https://opentelemetry.io/docs/concepts/signals/metrics/#meter), which is used for creating instruments (counters, histograms, and more).
 -  `counter = meter.create_counter("request-count")`: Counters track a value that always increases, like the number of requests.
 - `histogram = meter.create_histogram("request-latency")`: Histograms aggregate raw data, allowing you to perform statistical samples on the them and answer questions like "how many request response times are within my P95?".
-- `counter.add(1, {"name": name})`: this increments our counter once and including an  extra attribute for the the name in request URL.
-- `histogram.record(duration_ms, kwargs)`: this records how long it took for our server to generate a response to the request. We've written a `record_latency` decorator to both create reusable latency logic and handle any exceptions while that may be raised when creating the response.
+- `counter.add(1, {"name": name})`: this increments our counter once and includes an  extra attribute for the the name in request URL.
+- `histogram.record(duration_ms, kwargs)`: this records how long it took for our server to generate a response to the request. We've written a `record_latency` decorator to both create reusable latency logic and handle any exceptions that may be raised when creating the response.
 
-Let's run our server again and refresh the browser a few times. After a minute, we should see the requests start to appear in the Application Insights resource. To get to this chart, go to your Application Insights resource and click on Metrics underneath the Monitoring section on the left navbar, then change the Metric Namespace dropdown to be `azure.applicationinsights`. Then, you can play with the Metric and Aggregation dropdowns to see different graphs for our two OTel instruments.
+Let’s run our server again and refresh the browser a few times. After a minute, we should see the requests start to appear in the Application Insights resource. To see the charts below, go to your Application Insights resource and click on Metrics underneath the Monitoring section on the left navbar, then change the Metric Namespace dropdown to be `azure.applicationinsights`. You can play with the Metric and Aggregation dropdowns to see different graphs for our two OTel instruments.
 
 **Average `request-count`**
 ![](static/az-request-count.png)
@@ -559,13 +409,14 @@ Let's run our server again and refresh the browser a few times. After a minute, 
 **Average `request-latency` (in milliseconds)**
 ![](static/az-request-latency.png)
 
-Let's set up a metrics alert rule to notify if our server begins taking too long to respond to requests. We'll use the `request-latency` histogram with a threshold of 1 second. Click the "New alert rule" button on the same page.
+### Alerts
+Let’s set up a metrics alert rule to notify if our server begins taking too long to respond to requests. We'll use the `request-latency` histogram with a threshold of one second. Click the "New alert rule" button on the same page.
 ![](static/az-alert-rule.png)
 
 The preview shows that so far our traffic is performing well under the one second threshold for our alert to trigger.
 ![](static/az-alert-rule-graph.png)
 
-Let's add some random synthetic latency to our request handler:
+Let’s add some random latency to our request handler:
 ```python
 ...
 def get_naughty_or_nice(name: str):
@@ -577,17 +428,11 @@ def get_naughty_or_nice(name: str):
 Then restart the web server and trigger a few requests. After a minute, we should see an alert was triggered. This page can be found by clicking Alerts under the Monitoring section on the left navbar.
 ![](static/az-alert-fired.png)
 
-Our average latency is up to a whopping 1.8 seconds!
+Our average latency is up to a whopping 1.8 seconds! Good thing we set up an alert!
 ![](static/az-alert-fired-graph.png)
-
 ## Recap
 Today we've learned a little bit about OpenTelemetry and why metrics are important. Metrics help you monitor the health of your software system and forecast issues. [Distributed Systems Observability](https://www.oreilly.com/library/view/distributed-systems-observability/9781492033431/ch01.html) is a great resource to learn more about building observability into your software.
 
 We also saw how to leverage FastAPI to create a simple web app. FastAPI leverages type hints for an enhanced developer experience. If Python's type hints are new to you, check out how to [shift left with type hints in Python](https://intellitect.com/blog/type-hints-python/).
 
 Happy holidays and may your metrics alerts notify you of impending outages _before_ Christmas day. Cheers.
-## Resources
-- https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-overview
-- https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable
-- https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/azuremonitorexporter
-- https://www.oreilly.com/library/view/distributed-systems-observability/9781492033431/ch04.html
