@@ -29,6 +29,8 @@ histogram = meter.create_histogram("request-latency")
 
 
 def record_latency(func: typing.Callable) -> typing.Callable:
+    """Record how long `func` takes to execute and report its latency."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         start = time.time()
