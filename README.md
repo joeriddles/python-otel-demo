@@ -1,5 +1,7 @@
 # Demo of using OpenTelemetry with a Python API
 
+Sample code for a blog post: https://intellitect.com/blog/opentelemetry-metrics-python/
+
 ## Local development
 
 ### Getting started
