@@ -1,6 +1,8 @@
-# OpenTelemetry and Python
+# Observing Python: An Introduction to OpenTelemetry Metrics
 
 Python is one of the world's most popular programming languages. OpenTelemetry is a modern collection of tools and specifications for adding telemetry to your software. Today we're going to learn about using OpenTelemetry with Python.
+
+## Pillars of Observability
 
 Designing a software application to be observable is table stakes in modern software development. Observability is a non-functional requirement that when done right enables the state of a system to be continuously communicated and visible to those maintaining it. Because observability is a non-functional requirement, it has more to do with the way the system is designed than any specific feature.
 
@@ -41,7 +43,7 @@ All major cloud providers also provide their own metrics solution:
 - [AWS CloudWatch Metrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/working_with_metrics.html)
 - [GCP Cloud Monitoring Metrics](https://cloud.google.com/monitoring/api/metrics_gcp)
 
-## Build a basic app using [FastAPI](https://fastapi.tiangolo.com/#example)
+## Build a basic app using FastAPI
 
 [FastAPI](https://fastapi.tiangolo.com/) is one of the most popular Python web frameworks. It utilizes modern Python features like type hints to provide a world-class developer experience. It is more similar to its older sibling [Flask](https://flask.palletsprojects.com/en/3.0.x/) than [Django](https://www.djangoproject.com/) (the [two most popular Python web frameworks](https://lp.jetbrains.com/python-developers-survey-2022/#FrameworksLibraries)). We'll be using it to create a basic web application that can be instrumented.
 
